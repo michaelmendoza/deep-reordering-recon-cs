@@ -16,14 +16,14 @@ from tqdm import trange, tqdm
 class Data:
 
     def __init__(self, 
-            percent_load = 0.01,
-            ratio = 0.6,
+            percent_load = 0.02,
+            percent_training = 0.8,
             useNormalization = True,
             filepath = '../mri-data/Cardic_Undersampled_for_CS/training_data_2.h5'
         ): 
 
         self.percent_load = percent_load
-        self.ratio = ratio
+        self.percent_training = percent_training
         self.useNormalization = useNormalization
         self.filepath = filepath
         
@@ -69,7 +69,7 @@ class Data:
 
         print('Reordering Values: Max: ' + str(self.y_max) + ' Min:' + str(self.y_min))
 
-        index = int(self.ratio * self.x_input.shape[0]) # Split index 
+        index = int(self.percent_training * self.x_input.shape[0]) # Split index 
         self.x_train = self.x_input[0:index, :]
         self.x_test = self.x_input[index:, :]
         self.y_train = self.y_input[0:index, :]

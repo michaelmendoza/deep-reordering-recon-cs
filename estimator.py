@@ -16,16 +16,16 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Import Dataset
 from data_loader import Data
-data = Data(percent_load = 0.005)
+data = Data(percent_load = 0.02)
 
 # Import Models
 from model import unet
 
 # Training Parameters
-learning_rate = 0.0001
-num_steps = 100
-batch_size = 32
-display_step = 10
+learning_rate = 0.0001 
+num_steps = 20000
+batch_size = 32 
+display_step = 1000
 
 # Network Parameters 
 WIDTH = 256; HEIGHT = 256; CHANNELS = 2
