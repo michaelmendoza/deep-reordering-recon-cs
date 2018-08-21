@@ -23,9 +23,9 @@ from model import unet
 
 # Training Parameters
 learning_rate = 0.0001
-num_steps = 20000
+num_steps = 100
 batch_size = 32
-display_step = 1000
+display_step = 10
 
 # Network Parameters
 WIDTH = 256; HEIGHT = 256; CHANNELS = 2
@@ -51,6 +51,9 @@ sess.run(init)
 
 print ('Start Training: BatchSize:', batch_size,' LearningRate:', learning_rate)
 
+import time
+start_time = time.time()
+
 # Train network
 _step = []
 _train_loss = []
@@ -66,7 +69,9 @@ for step in range(num_steps):
         _step.append(step)
         _train_loss.append(train_loss)
         _test_loss.append(test_loss)
-        print("Step: " + str(step) + " Train Loss: " + str(train_loss) + " Test Loss: " + str(test_loss))
+
+        time_elapsed = time.time() - start_time
+        print("Step: " + str(step) + " Train Loss: " + str(train_loss) + " Test Loss: " + str(test_loss) + " Time Elapsed: " + str(round(time_elapsed)) + " secs")
 
 pred_train = sess.run(prediction, feed_dict={ X: batch_xs })
 pred_test = sess.run(prediction, feed_dict={ X: data.x_test })
