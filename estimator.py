@@ -8,6 +8,7 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf 
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import os
@@ -67,11 +68,12 @@ for step in range(num_steps):
         _test_loss.append(test_loss)
         print("Step: " + str(step) + " Train Loss: " + str(train_loss) + " Test Loss: " + str(test_loss))
 
+pred_train = sess.run(prediction, feed_dict={ X: batch_xs })
 pred_test = sess.run(prediction, feed_dict={ X: data.x_test })
 
 # Plot Accuracy
-plt.plot(_step, _train_loss, label="Train Loss")
-plt.plot(_step, _test_loss, label="Test Loss")
+plt.semilogy(_step, _train_loss, label="Train Loss")
+plt.semilogy(_step, _test_loss, label="Test Loss")
 plt.xlabel("Steps")
 plt.ylabel("Loss")
 plt.legend()
@@ -79,19 +81,32 @@ plt.title("Loss for reordering")
 plt.savefig('results/loss.png')
 
 # Show results
-index = 0
-true_reorder = data.denormalize(data.x_test[index, :, :, 1].squeeze(), data.y_min, data.y_max)
-new_reorder = data.denormalize(pred_test[index, :, :, 1].squeeze(), data.y_min, data.y_max)
-diff = true_reorder - new_reorder
+index = 0 
+true_reorder = data.denormalize(batch_ys[index, :, :, 1].squeeze(), data.y_min, data.y_max)
+new_reorder = data.denormalize(pred_train[index, :, :, 1].squeeze(), data.y_min, data.y_max)
+diff = np.abs(true_reorder - new_reorder)
+true_reorder_test = data.denormalize(data.y_test[index, :, :, 1].squeeze(), data.y_min, data.y_max)
+new_reorder_test = data.denormalize(pred_test[index, :, :, 1].squeeze(), data.y_min, data.y_max)
+diff_test = np.abs(true_reorder - new_reorder)
 
-matplotlib.image.imsave('results/true_reorder.png', true_reorder, cmap='gray') 
-matplotlib.image.imsave('results/new_reorder.png', new_reorder, cmap='gray') 
-matplotlib.image.imsave('results/diff_reorder.png', diff, cmap='gray') 
+matplotlib.image.imsave('results/true_reorder.png', true_reorder, cmap='gray', vmin=0, vmax=255) 
+matplotlib.image.imsave('results/new_reorder.png', new_reorder, cmap='gray', vmin=0, vmax=255) 
+matplotlib.image.imsave('results/diff_reorder.png', diff, cmap='gray', vmin=0, vmax=255) 
 
-subplot(3,1,1)
-plt.imshow(true_reorder, cmap='gray')
-subplot(3,1,2)
-plt.imshow(new_reorder, cmap='gray')
-subplot(3,1,3)
-plt.imshow(diff, cmap='gray')
+matplotlib.image.imsave('results/true_reorder_test.png', true_reorder_test, cmap='gray', vmin=0, vmax=255) 
+matplotlib.image.imsave('results/new_reorder_test.png', new_reorder_test, cmap='gray', vmin=0, vmax=255) 
+matplotlib.image.imsave('results/diff_reorder_test.png', diff_test, cmap='gray', vmin=0, vmax=255) 
+
+plt.subplot(2,3,1)
+plt.imshow(true_reorder, cmap='gray', vmin=0, vmax=255)
+plt.subplot(2,3,2)
+plt.imshow(new_reorder, cmap='gray', vmin=0, vmax=255)
+plt.subplot(2,3,3)
+plt.imshow(diff, cmap='gray', vmin=0, vmax=255)
+plt.subplot(2,3,4)
+plt.imshow(true_reorder_test, cmap='gray', vmin=0, vmax=255)
+plt.subplot(2,3,5)
+plt.imshow(new_reorder_test, cmap='gray', vmin=0, vmax=255)
+plt.subplot(2,3,6)
+plt.imshow(diff_test, cmap='gray', vmin=0, vmax=255)
 plt.show() 

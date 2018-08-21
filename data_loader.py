@@ -57,18 +57,19 @@ class Data:
         input = np.transpose(input, (0, 2, 3, 1))
 
         # Grab Correct Indices
-        x_input = np.real(input[:, :, :, 0:2]) # Load Real Order, Imaginary Order
-        y_input = input[:, :, :, 4] # Load Complex Undersampled Image
-        y_input = np.concatenate(( np.real(y_input)[:, :, :, None], np.imag(y_input)[:, :, :, None] ), axis=3)
-
-        return x_input, y_input
+        x_input = input[:, :, :, 4] # Load Complex Undersampled Image
+        x_input = np.concatenate(( np.real(x_input)[:, :, :, None], np.imag(x_input)[:, :, :, None] ), axis=3)
+        y_input = np.real(input[:, :, :, 0:2]) # Load Real Order, Imaginary Order
+        return x_input, y_input 
 
     def generate(self):
         if self.useNormalization:
             self.x_input, self.x_min, self.x_max = self.normalize(self.x_input)
             self.y_input, self.y_min, self.y_max = self.normalize(self.y_input)
 
-        index = int(self.ratio * len(self.x_input)) # Split index
+        print('Reordering Values: Max: ' + str(self.y_max) + ' Min:' + str(self.y_min))
+
+        index = int(self.ratio * self.x_input.shape[0]) # Split index 
         self.x_train = self.x_input[0:index, :]
         self.x_test = self.x_input[index:, :]
         self.y_train = self.y_input[0:index, :]
