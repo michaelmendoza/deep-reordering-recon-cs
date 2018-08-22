@@ -46,6 +46,9 @@ segmentation = tf.argmax(prediction, 3)
 correct_pred = tf.equal(tf.argmax(prediction, 3), tf.argmax(Y, 3))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
+# Save weights
+saver = tf.train.Saver()
+
 # Initalize varibles, and run network 
 init = tf.global_variables_initializer()
 sess = tf.Session()
@@ -66,6 +69,10 @@ for step in range(num_steps):
       _acc.append(acc)
 
       print("Step: " + str(step) + " Test Accuracy: " + str(acc)) 
+
+# Save the variables to disk.
+save_path = saver.save(sess, "/tmp/model.ckpt")
+print("Model saved in path: %s" % save_path)
 
 # Plot Accuracy
 plt.plot(_step, _acc, label="test accuracy")

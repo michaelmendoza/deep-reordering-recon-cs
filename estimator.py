@@ -16,7 +16,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Import Dataset
 from data_loader import Data
-data = Data(percent_load = 0.02)
+data = Data(percent_load = 1.0, filepath='../mri-data/Cardic_Undersampled_for_CS/training_data_small.h5') 
 
 # Import Models
 from model import unet
@@ -33,8 +33,8 @@ NUM_INPUTS = WIDTH * HEIGHT * CHANNELS
 NUM_OUTPUTS = 2
 
 # Network Varibles and placeholders
-X = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, CHANNELS])  # Input
-Y = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, NUM_OUTPUTS]) # Truth Data - Output
+X = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, CHANNELS],    name="X")  # Input
+Y = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, NUM_OUTPUTS], name="Y") # Truth Data - Output
 
 # Define loss and optimizer
 logits, _ = unet(X, NUM_OUTPUTS)
@@ -44,9 +44,14 @@ loss = tf.reduce_mean(tf.square(prediction - Y))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
 trainer = optimizer.minimize(loss)
 
+# Save weights
+saver = tf.train.Saver()
+
 # Initalize varibles, and run network
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
 init = tf.global_variables_initializer()
-sess = tf.Session()
+sess = tf.Session(config=config)
 sess.run(init)
 
 print ('Start Training: BatchSize:', batch_size,' LearningRate:', learning_rate)
@@ -76,6 +81,10 @@ for step in range(num_steps):
 pred_train = sess.run(prediction, feed_dict={ X: batch_xs })
 pred_test = sess.run(prediction, feed_dict={ X: data.x_test })
 
+# Save the variables to disk.
+save_path = saver.save(sess, "./tmp/model")
+print("Model saved in path: %s" % save_path)
+
 # Plot Accuracy
 plt.semilogy(_step, _train_loss, label="Train Loss")
 plt.semilogy(_step, _test_loss, label="Test Loss")
@@ -95,8 +104,8 @@ new_reorder_test = data.denormalize(pred_test[index, :, :, 1].squeeze(), data.y_
 diff_test = np.abs(true_reorder - new_reorder)
 
 # Save the new reordering for comparison
-np.save('results/new_reorder_test.npy',new_reorder_test)
-np.save('results/new_reorder.npy',new_reorder)
+np.save('results/new_reorder_test.npy',data.denormalize(batch_ys[index, :, :, :].squeeze(), data.y_min, data.y_max))
+np.save('results/new_reorder.npy',data.denormalize(pred_train[index, :, :, :].squeeze(), data.y_min, data.y_max))
 
 matplotlib.image.imsave('results/true_reorder.png', true_reorder, cmap='gray', vmin=0, vmax=255)
 matplotlib.image.imsave('results/new_reorder.png', new_reorder, cmap='gray', vmin=0, vmax=255)

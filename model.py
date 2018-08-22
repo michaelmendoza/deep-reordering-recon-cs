@@ -43,7 +43,7 @@ def unet(x, NUM_OUTPUTS):
     conv9 = tf.layers.conv2d(up9, 32, [3, 3], padding="SAME", activation=tf.nn.relu, kernel_initializer=he_init, name='Conv9')
     conv9 = tf.layers.conv2d(conv9, 32, [3, 3], padding="SAME", activation=tf.nn.relu, kernel_initializer=he_init, name='Conv9-2')
     
-    logits = tf.layers.conv2d(conv9, NUM_OUTPUTS, [1, 1], padding="SAME", activation=None, kernel_initializer=he_init, name='Output')
-    prediction = tf.nn.softmax(logits)
+    logits = tf.layers.conv2d(conv9, NUM_OUTPUTS, [1, 1], padding="SAME", activation=None, kernel_initializer=he_init, name='Logits')
+    prediction = tf.nn.softmax(logits, name='Prediction')
 
     return logits, prediction

@@ -49,7 +49,8 @@ class Data:
         # Load and format data in to array of shape -> (Count, Width, Height, Channels)
         keyCount = len(self.keys)
         maxIndex = math.floor(keyCount * self.percent_load);
-        for i in tqdm(range(1, maxIndex + 1)):
+
+        for i in tqdm(range(1, maxIndex)):
             if(i == 1):
                 input = self.get_image(i)[None, :]
             else:
